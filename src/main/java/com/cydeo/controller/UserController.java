@@ -1,88 +1,53 @@
 package com.cydeo.controller;
 
 import com.cydeo.dto.UserDTO;
-import com.cydeo.service.RoleService;
+import com.cydeo.entity.ResponseWrapper;
 import com.cydeo.service.UserService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import java.util.List;
 
-@Controller
-@RequestMapping("/user")
+@RestController
+@RequestMapping("/api/v1/user")
 public class UserController {
 
     private final UserService userService;
-    private final RoleService roleService;
 
-    public UserController(UserService userService, RoleService roleService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.roleService = roleService;
     }
 
-    @GetMapping("/create")
-    public String createUser(Model model) {
-
-        model.addAttribute("user", new UserDTO());
-        model.addAttribute("roles", roleService.listAllRoles());
-        model.addAttribute("users", userService.listAllUsers());
-
-        return "/user/create";
+    // CREATE END-POINT showing all users
+    @GetMapping
+    public ResponseEntity<ResponseWrapper> getUsers() {
+        List<UserDTO> list = userService.listAllUsers();
+        return ResponseEntity.ok(new ResponseWrapper("Users are successfully retrieved",list, HttpStatus.OK));
     }
 
+    @GetMapping("/{userName}")
+    public ResponseEntity<ResponseWrapper> getUserByUserName(@PathVariable("userName") String userName) {
+        UserDTO user = userService.findByUserName(userName);
+        return ResponseEntity.ok(new ResponseWrapper("User is successfully retrieved",user,HttpStatus.OK));
+    }
 
-    @PostMapping("/create")
-    public String insertUser(@ModelAttribute("user") UserDTO user, BindingResult bindingResult, Model model) {
-
-        if (bindingResult.hasErrors()) {
-
-            model.addAttribute("roles", roleService.listAllRoles());
-            model.addAttribute("users", userService.listAllUsers());
-
-            return "/user/create";
-
-        }
-
+    @PostMapping
+    public ResponseEntity<ResponseWrapper> createUser(@RequestBody UserDTO user) {
         userService.save(user);
-        return "redirect:/user/create";
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseWrapper("User is created successfully",HttpStatus.CREATED));
     }
 
-    @GetMapping("/update/{username}")
-    public String editUser(@PathVariable("username") String username, Model model) {
-
-        model.addAttribute("user", userService.findByUserName(username));
-        model.addAttribute("roles", roleService.listAllRoles());
-        model.addAttribute("users", userService.listAllUsers());
-
-        return "/user/update";
-
-    }
-
-    @PostMapping("/update")
-    public String updateUser(@ModelAttribute("user") UserDTO user, BindingResult bindingResult, Model model) {
-
-        if (bindingResult.hasErrors()) {
-
-            model.addAttribute("roles", roleService.listAllRoles());
-            model.addAttribute("users", userService.listAllUsers());
-
-            return "/user/update";
-
-        }
-
+    @PutMapping
+    public ResponseEntity<ResponseWrapper> updateUser(@RequestBody UserDTO user) {
         userService.update(user);
-        return "redirect:/user/create";
-
+        return ResponseEntity.ok(new ResponseWrapper("User is successfully updated",user,HttpStatus.OK));
     }
 
-    @GetMapping("/delete/{username}")
-    public String deleteUser(@PathVariable("username") String username) {
-//        userService.deleteByUserName(username);
-        userService.delete(username);
-        return "redirect:/user/create";
+    @DeleteMapping("/{userName}")
+    public ResponseEntity<ResponseWrapper> deleteUser(@PathVariable("userName") String userName) {
+        userService.deleteByUserName(userName);
+//        return ResponseEntity.ok(new ResponseWrapper("User is successfully deleted",HttpStatus.OK));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ResponseWrapper("User is deleted successfully",HttpStatus.NO_CONTENT));
     }
-
 }
