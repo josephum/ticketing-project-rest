@@ -28,11 +28,18 @@ public class BaseEntity {  //break till 8:35
 
     private Boolean isDeleted=false;
 
+    @PrePersist
+    public void onPrePersist() {
+        this.insertDateTime = LocalDateTime.now();
+        this.lastUpdateDateTime = LocalDateTime.now();
+        this.insertUserId = 1L;
+        this.lastUpdateUserId = 1L;
+    }
 
-
-
-
-
-
+    @PreUpdate
+    public void onPreUpdate() {
+        this.lastUpdateDateTime = LocalDateTime.now();
+        this.lastUpdateUserId = 1L;
+    }
 
 }
