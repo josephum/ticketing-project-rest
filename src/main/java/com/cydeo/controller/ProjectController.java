@@ -5,10 +5,7 @@ import com.cydeo.entity.ResponseWrapper;
 import com.cydeo.service.ProjectService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,10 +30,13 @@ public class ProjectController {
         ProjectDTO projectDTO = projectService.getByProjectCode(projectCode);
         return ResponseEntity.ok(new ResponseWrapper("Project is successfully retrieved",projectDTO,HttpStatus.OK));
     }
-//    public ResponseEntity<ResponseWrapper> createProject() {
-//
-//
-//    }
+
+    @PostMapping
+    public ResponseEntity<ResponseWrapper> createProject(@RequestBody ProjectDTO project) {
+        projectService.save(project);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseWrapper("Project is successfully created",HttpStatus.CREATED));
+
+    }
 //    public ResponseEntity<ResponseWrapper> updateProject() {
 //
 //
