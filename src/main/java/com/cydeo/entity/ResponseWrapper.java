@@ -1,13 +1,13 @@
 package com.cydeo.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ResponseWrapper {
 
     private boolean success;
@@ -27,4 +27,6 @@ public class ResponseWrapper {
         this.code = httpStatus.value();
         this.success = true;
     }
+
+
 }
